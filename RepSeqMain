@@ -10,3 +10,6 @@ LUAD_Pool5
 LUAD_Pool8
 
 
+#translate sequence to amino acid sequence
+library(alakazam)
+df$newcolname <- translateDNA(df$seqcol)
