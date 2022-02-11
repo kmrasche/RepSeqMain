@@ -13,3 +13,6 @@ LUAD_Pool8
 #translate sequence to amino acid sequence
 library(alakazam)
 df$newcolname <- translateDNA(df$seqcol)
+
+aminoAcidProperties(CDR3Sub, property=c("bulk", "charge"), seq="junction", 
+trim=TRUE, label="cdr3", bulkiness=x, pH=7.0)
