@@ -18,4 +18,4 @@ aminoAcidProperties(CDR3Sub, property=c("bulk", "charge"), seq="junction",
 trim=TRUE, label="cdr3", bulkiness=x, pH=7.0)
 
 #save aa properties into new df
-aminoAcidProperties(CDR3Sub, seq = "cdr3", nt = FALSE) + write.csv(CDR3Sub, "/Users/kamillerasche/Documents/CyTOF_Data/CDR3SubAA.tsv")
+aminoAcidProperties(CDR3Sub, seq = "cdr3", nt = FALSE) + write.tsv(CDR3Sub, "/Users/kamillerasche/Documents/CyTOF_Data/CDR3SubAA.tsv")
