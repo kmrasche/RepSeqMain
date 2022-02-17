@@ -19,3 +19,34 @@ trim=TRUE, label="cdr3", bulkiness=x, pH=7.0)
 
 #save aa properties into new df
 aminoAcidProperties(CDR3Sub, seq = "cdr3", nt = FALSE) + write.tsv(CDR3Sub, "/Users/kamillerasche/Documents/CyTOF_Data/CDR3SubAA.tsv")
+
+
+#writing a loop
+x <-read.table(paste0("BCRMasterChangeo.tsv"), sep = "\t", header = TRUE)
+
+Patients<-c("Patient806","Patient1059","Patient1057","Patient508", "Patient557","Patient797","Patient813","Patient817", "Patient908","Patient824","Patient915", "Patient940","Patient945","Patient956", "Patient959","Patient962","Patient968","Patient971","Patient1065", "Patient1189", "Patient1491", "Patient1538")
+
+for(i in Patients)
+{
+
+indicies<-which(x$patient_id==Patients[i])
+
+xSub<-x[indicies,]
+
+
+indiciesTumor<-which(x$tissue=="Tumor")
+
+xTumor<-x[indiciesTumor,]
+
+db_props <- aminoAcidProperties(x, seq="junction", trim=TRUE, 
+                                label="cdr3")
+g1 <- ggplot(db_props, aes(x=isotype, y=cdr3_aa_length)) +
+    ggtitle("CDR3 length") + 
+    xlab("Isotype") + ylab("Amino acids") +
+    #scale_fill_manual(name="Isotype", values=IG_COLORS) +
+    geom_boxplot(aes(fill=isotype))
+
+pdf(paste0("myPlot_",Patients[1],".pdf"))
+g1
+dev.off()
+}
