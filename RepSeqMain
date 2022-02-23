@@ -22,31 +22,46 @@ aminoAcidProperties(CDR3Sub, seq = "cdr3", nt = FALSE) + write.tsv(CDR3Sub, "/Us
 
 
 #writing a loop
-x <-read.table(paste0("BCRMasterChangeo.tsv"), sep = "\t", header = TRUE)
+#THIS ONE WORKS
 
-Patients<-c("Patient806","Patient1059","Patient1057","Patient508", "Patient557","Patient797","Patient813","Patient817", "Patient908","Patient824","Patient915", "Patient940","Patient945","Patient956", "Patient959","Patient962","Patient968","Patient971","Patient1065", "Patient1189", "Patient1491", "Patient1538")
+setwd("/Volumes/LaCie/BCRRepSeq_Data")
+z <-read.table(paste0("CDRSubs.tsv"), sep = "\t", header = TRUE)
+
+library(alakazam)
+library(dplyr)
+library(scales)
+
+Patients<-c("Patient915","Patient945","Patient956", "Patient959","Patient962","Patient968","Patient971","Patient1065", "Patient1189", "Patient1491")
 
 for(i in Patients)
 {
 
-indicies<-which(x$patient_id==Patients[i])
+indicies<-which(z$patient_id==Patients[10])
 
-xSub<-x[indicies,]
+xSub<-z[indicies,]
 
+xTumor<-subset(xSub, tissue=="Tumor", select=c("patient_id", "cdr1", "cdr2", "tissue", "cdr3", "group", "isotype"))
 
-indiciesTumor<-which(x$tissue=="Tumor")
+IgG<- subset(xSub, isotype=="IGG", select=c("patient_id", "cdr1", "cdr2", "tissue", "cdr3", "group", "isotype"))
 
-xTumor<-x[indiciesTumor,]
+IgGAA <- aminoAcidProperties(IgG, seq="cdr1", trim=FALSE, label="cdr1")
 
-db_props <- aminoAcidProperties(x, seq="junction", trim=TRUE, 
-                                label="cdr3")
-g1 <- ggplot(db_props, aes(x=isotype, y=cdr3_aa_length)) +
-    ggtitle("CDR3 length") + 
-    xlab("Isotype") + ylab("Amino acids") +
-    #scale_fill_manual(name="Isotype", values=IG_COLORS) +
-    geom_boxplot(aes(fill=isotype))
+IgGAA$isotype <- "IgG"
 
-pdf(paste0("myPlot_",Patients[1],".pdf"))
+IgM<- subset(xTumor, isotype=="IGM", select=c("patient_id", "germline_v_call", "tissue", "cdr3", "group", "isotype"))
+
+IgMAA<- aminoAcidProperties(IgM, seq="cdr1", trim=FALSE, label="cdr1")
+
+IgMAA$isotype <- "IgM"
+
+y<-merge(IgGAA, IgMAA sort=TRUE, all.x=TRUE, all.y=TRUE)
+
+g1 <- ggplot(y, aes(x=, y=seq_freq)) +
+    ggtitle("CDR1 Charge", Patients [10]) + 
+    xlab("IGHV") + ylab("Frequency") +
+       geom_point(aes(fill=seq_freq, color=isotype, shape=isotype, size=9))
+
+pdf(paste0("IGHV_",Patients [10],".pdf"))
 g1
 dev.off()
 }
