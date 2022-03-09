@@ -10,6 +10,87 @@ LUAD_Pool5
 LUAD_Pool8
 
 
+########using countGenes
+library(alakazam)
+library(dplyr)
+library(scales)
+
+Patients<-c("Patient1057", "Patient1058", "Patient1059", "Patient1065", "Patient1072", "Patient1183", "Patient1184", "Patient1189", "Patient1491", "Patient1522", "Patient508",  "Patient557",  "Patient797",  "Patient806",  "Patient813",  "Patient814", "Patient824",  "Patient908",  "Patient915",  "Patient923", "Patient940",  "Patient945",  "Patient951",  "Patient956" , "Patient959", "Patient962" , "Patient968",  "Patient970",  "Patient971")
+
+for(i in Patients)
+{
+
+indicies<-which(x$patient_id==Patients[1])
+
+xSub<-x[indicies,]
+
+xTumor<-subset(x, tissue=="Tumor", select=c("patient_id", "v_call", "j_call", "d_call", "cdr3", "group", "isotype", "clone_id", "tissue"))
+
+IgGTumor <- subset(xTumor, isotype=="IGG", select=c("patient_id", "v_call", "j_call", "d_call", "cdr3", "group", "isotype", "clone_id", "tissue"))
+
+IGGVgeneTumor <- countGenes(IgGTumor, gene="v_call", groups="patient_id", clone="clone_id", mode="gene")
+
+IGGVgeneTumor$isotype <- "IgG"
+
+IGGVgeneTumor$tissue <- "Tumor"
+
+
+xPBMC<-subset(x, tissue=="PBMC", select=c("patient_id", "v_call", "j_call", "d_call", "cdr3", "group", "isotype", "clone_id", "tissue"))
+
+IgGPBMC <- subset(xPBMC, isotype=="IGG", select=c("patient_id", "v_call", "j_call", "d_call", "cdr3", "group", "isotype", "clone_id", "tissue"))
+
+IGGVgenePBMC <- countGenes(IgGPBMC, gene="v_call", groups="patient_id", clone="clone_id", mode="gene")
+
+IGGVgenePBMC$isotype <- "IgG"
+
+IGGVgenePBMC$tissue <- "PBMC"
+
+
+VGenes <- rbind(IGGVgeneTumor, IGGVgenePBMC)
+
+VGenes1 <- IGGVgeneTumor[str_detect(IGGVgeneTumor$gene, "IGHV1"),]
+
+VG1 <- subset(VGenes1, clone_freq>="0.05")
+
+VGenes3 <- IGGVgeneTumor[str_detect(IGGVgeneTumor$gene, "IGHV3"),]
+
+VG3 <- subset(VGenes3, clone_freq>="0.05")
+
+VGenes4 <- IGGVgeneTumor[str_detect(IGGVgeneTumor$gene, "IGHV4"),]
+
+VG4 <- subset(VGenes4, clone_freq>="0.05")
+
+ 
+
+g1 <- ggplot(VG1, aes(x=gene, y=clone_freq)) + 
+ ggtitle("IGHV1") + geom_label_repel(aes(label = patient_id), size=3, max.overlaps=Inf) +
+    geom_point(aes(color=patient_id, fill=clone_freq)) + 
+  theme(axis.text.x = element_text(angle = 90)) +
+theme(legend.position = "none")  
+
+
+g3 <- ggplot(VG3, aes(x=gene, y=clone_freq)) + 
+ggtitle("IGHV3") + geom_label_repel(aes(label = patient_id), size=3, max.overlaps=Inf) +
+    geom_point(aes(color=patient_id, fill=clone_freq)) +   
+theme(axis.text.x = element_text(angle = 90)) +
+theme(legend.position = "none") 
+
+g4 <- ggplot(VG4, aes(x=gene, y=clone_freq)) + 
+ggtitle("IGHV4") + geom_label_repel(aes(label = patient_id), size=3, max.overlaps=Inf) +
+    geom_point(aes(color=patient_id, fill=clone_freq)) +  
+theme(axis.text.x = element_text(angle = 90)) +
+theme(legend.position = "none")
+
+ggarrange(g1, g3, g4, common.legend = TRUE, legend="right", legend.text=element_text(size=8))
+ggsave("IGHV3_IgG_ByPatients.jpeg")
+
+
+
+
+
+
+
+
 #translate sequence to amino acid sequence
 library(alakazam)
 df$newcolname <- translateDNA(df$seqcol)
